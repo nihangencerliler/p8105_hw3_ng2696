@@ -4,7 +4,7 @@ author: "Nihan Gencerliler"
 date: "10/15/2019"
 output: github_document
 ---
-# Homework 2
+# Homework 3
 
 ```{r setup}
 library (ggplot2)
@@ -24,21 +24,19 @@ The "instacart" dataset includes 1384617 observations and 15 variables. Some key
 
 How many aisles are there, and which aisles are the most items ordered from?
 ```{r}
-instacart_aisle = 
+instacart_aisle=
 instacart %>%
   group_by(aisle) %>%
   summarize (n=n()) %>%
-  arrange(-n)
-
-head(instacart_aisle)
-dim(instacart_aisle)
+  arrange(-n) 
+  head(instacart_aisle)
 ```
 
-There are 134 aisles in total and the most items are ordered from the fresh vegetables and fresh fruits aisles, with 	150609and 150473 items ordered respectively.
+There are 134 aisles in total and the most items are ordered from the fresh vegetables and fresh fruits aisles, with 	150609 and 150473 items ordered respectively.
 
 Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
 
-```{r}
+```{r ,fig.width = 6, fig.height = 4}
 instacart_aisle %>%
   filter(n>10000) %>%
   ggplot(aes(x=aisle,y=n)) + geom_point() + theme(axis.text.x= element_text(angle=45))
@@ -47,24 +45,65 @@ instacart_aisle %>%
 Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
 
 ```{r}
-instacart_aisle_popular=
+instacart_popular=
   instacart %>%
-  filter(aisle %in% c("baking ingredients","dog food care","packaged vegetable fruits")) %>%
-  group_by(aisle,product_name) %>%
+  filter(aisle %in% c("baking ingredients","dog food care","packaged vegetables fruits")) %>%
+  group_by(product_name,aisle) %>%
   summarize(n=n()) %>%
-  arrange(aisle,-n)
-knitr::kable(instacart_aisle_popular)
+  group_by(aisle) %>%
+  mutate(aisle_ranking=min_rank(n)) %>%
+  filter(aisle_ranking==1)
+knitr::kable(instacart_popular)
 ```
 
 
 Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
 
 ```{r}
-
+apples_coffee= 
+  instacart %>%
+  filter(product_name %in% c("Pink Lady Apples","Coffee Ice Cream")) %>%
+  group_by(product_name,order_dow) %>%
+    summarize(mean_order_hour=mean(order_hour_of_day)) %>%
+    pivot_wider(names_from=order_dow,values_from =mean_order_hour)
+knitr::kable(apples_coffee)
 ```
 
 ## Problem 2
 ```{r}
-library(p8105.datasets)
-data("BRFSS")
+data("brfss_smart2010") 
+brfss_smart2010=
+janitor::clean_names(brfss_smart2010)
+#deciding which observations to include
+unique(pull(brfss_smart2010))
+brfss_smart2010=
+brfss_smart2010 %>%
+  filter(topic=="Overall Health",response %in% c("Poor", "Fair", "Excellent", "Good","Very Good")) %>%
+  mutate(response_ordered=factor(response, order = TRUE, levels =c("Poor", "Fair", "Good", "Very Good","Excellent")))
+
+brfss_smart2010
 ```
+
+```{r}
+brfss_smart2010 %>%
+  group_by(year,locationabbr) %>%
+  summarize(n_sites=n_distinct(locationdesc)) %>%
+  arrange(year,-n_sites) %>%
+  filter (year %in% c("2002","2010")) %>%
+  pivot_wider(names_from=year,values_from=n_sites)
+```
+In 2002, PA, MA, BJ, CT, FL and NC had at least 7 sites In 2010, FL,NJ, TX, CA, MD, NC, NE, WA, MA, NY, OH, CO, PA, and SC had at least 7 sites.
+
+## Problem 3
+
+```{r}
+accel_data=
+  read_csv("./p8105_hw3_ng2696_files/accel_data.csv") %>%
+  janitor::clean_names() %>%
+  distinct() 
+  mutate(daytype=)
+
+accel_data
+```
+
+
