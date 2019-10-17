@@ -1,0 +1,70 @@
+---
+title: "p8105_hw3_ng2696"
+author: "Nihan Gencerliler"
+date: "10/15/2019"
+output: github_document
+---
+# Homework 2
+
+```{r setup}
+library (ggplot2)
+library(tidyverse)
+```
+
+## Problem 1
+
+```{r}
+library(p8105.datasets)
+data("instacart")
+dim(instacart)
+head(instacart)
+filter(instacart, order_id==1)
+```
+The "instacart" dataset includes 1384617 observations and 15 variables. Some key variables are product_name, order_id, and user_id. Each observation appears to pertain to a product that was purchased by a user as part of an order that includes other products, as well as information about the order such as time of the order. For instance, there are eight observations where order_id=1, which leads us to conclude that this order included eight products.
+
+How many aisles are there, and which aisles are the most items ordered from?
+```{r}
+instacart_aisle = 
+instacart %>%
+  group_by(aisle) %>%
+  summarize (n=n()) %>%
+  arrange(-n)
+
+head(instacart_aisle)
+dim(instacart_aisle)
+```
+
+There are 134 aisles in total and the most items are ordered from the fresh vegetables and fresh fruits aisles, with 	150609and 150473 items ordered respectively.
+
+Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+
+```{r}
+instacart_aisle %>%
+  filter(n>10000) %>%
+  ggplot(aes(x=aisle,y=n)) + geom_point() + theme(axis.text.x= element_text(angle=45))
+```
+
+Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+
+```{r}
+instacart_aisle_popular=
+  instacart %>%
+  filter(aisle %in% c("baking ingredients","dog food care","packaged vegetable fruits")) %>%
+  group_by(aisle,product_name) %>%
+  summarize(n=n()) %>%
+  arrange(aisle,-n)
+knitr::kable(instacart_aisle_popular)
+```
+
+
+Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+```{r}
+
+```
+
+## Problem 2
+```{r}
+library(p8105.datasets)
+data("BRFSS")
+```
