@@ -35,15 +35,15 @@ instacart %>%
 
 There are 134 aisles in total and the most items are ordered from the fresh vegetables and fresh fruits aisles, with 	150609 and 150473 items ordered respectively.
 
-Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+Plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered:
 
-```{r ,fig.width = 6, fig.height = 4}
+```{r ,fig.width = 10, fig.height = 6}
 instacart_aisle %>%
   filter(n>10000) %>%
   ggplot(aes(x=aisle,y=n)) + geom_point() + theme(axis.text.x= element_text(angle=45))
 ```
 
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+Table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”:
 
 ```{r}
 instacart_popular=
@@ -56,13 +56,12 @@ instacart_popular=
 instacart_popular %>%
   group_by(aisle,aisle_ranking,n) %>%
   filter(aisle_ranking<4)%>%
-  arrange(aisle,aisle_ranking)
-
-knitr::kable(instacart_popular)
+  arrange(aisle,aisle_ranking)%>%
+knitr::kable()
 ```
 
 
-Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+Table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
 
 ```{r}
 apples_coffee= 
@@ -75,14 +74,13 @@ knitr::kable(apples_coffee)
 ```
 
 ## Problem 2
+
+Load and clean data:
 ```{r}
 data("brfss_smart2010") 
 brfss_smart2010=
-janitor::clean_names(brfss_smart2010)
-#deciding which observations to include
-unique(pull(brfss_smart2010))
-brfss_smart2010=
 brfss_smart2010 %>%
+janitor::clean_names() %>%
   filter(topic=="Overall Health",response %in% c("Poor", "Fair", "Excellent", "Good","Very Good")) %>%
   mutate(response_ordered=factor(response, order = TRUE, levels =c("Poor", "Fair", "Good", "Very Good","Excellent")))
 
@@ -97,6 +95,7 @@ brfss_smart2010 %>%
 ```
 In 2002, PA, MA, BJ, CT, FL and NC had at least 7 sites In 2010, FL,NJ, TX, CA, MD, NC, NE, WA, MA, NY, OH, CO, PA, and SC had at least 7 sites.
 
+Average data_value in each state over time:
 ```{r}
 brfss_smart2010 %>%
   filter(response=="Excellent") %>%
@@ -104,7 +103,12 @@ brfss_smart2010 %>%
   summarize(mean_value=mean(data_value)) %>%
   ggplot(aes(x=year,y=mean_value,color=locationabbr))+geom_line()
 ```
+
+This plot indicates that, for a given year,  there is a some variation in the mean data
+value, with the mean data value in 2006 ranging from around 15 to 27, for instance. There appears to be less variation across time per state, as the lines are somewhat stacked on top of one another.
+
 ```{r}
+
 density_2006=
 brfss_smart2010 %>%
   filter(year =="2006") %>%
@@ -121,6 +125,7 @@ density_2006+density_2010
 
 ```
 
+The 2006 and 2010 density plots are very similar to one another. Each response ("excellent", "good" etc.) appears to be clustered around a range of data values with some intersection. For instance, most observations with response=fair have a mean data_value of between 5 and 15.
 
 ## Problem 3
 
@@ -134,9 +139,12 @@ accel_data=
                names_to="minute",
                names_prefix="activity_",
                values_to="activity_count")%>%
-  mutate(minute=as.integer(minute))
-  #mutate(day_type=ifelse(,"weekday","weekend")) %>%
+  mutate(minute=as.integer(minute)) %>%
+  mutate(day_type=ifelse(day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), "weekday","weekend")) 
+dim(accel_data)
+head(accel_data)
 ```
+There are 6 variables and 50400 observations in the resulting dataset, with each observation representing a minute within a 5-week span. The variables indicate the week, day, minute, day of the week, whether it's a weekend day or a weekday, and the activity count for that minute.
 
 Total activity across days:
 ```{r}
@@ -147,9 +155,13 @@ Total activity across days:
   knitr::kable()
 
 ```
+
+I don't see any particular trends, besides that there are some days where total activity count = 1440, which seems unlikely considering that is the number of minutes per day. It's possible that the accelerometer was not working on these days, which both happen to be Saturdays.
+
 Plot of activity count for each day:
 ```{r}
 accel_data %>%
   ggplot(aes(x=minute,y=activity_count,color=day))+geom_point()
 ```
 
+Based on this plot, there are some points during the day that have unusually high activity, namely towards the end of the dat around minute 1300, particularly on Friday. Also, it appears that only on Saturdays and Sundays does the person experience a high level of activity in the middle of the day.
