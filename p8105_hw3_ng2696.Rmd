@@ -124,14 +124,32 @@ density_2006+density_2010
 
 ## Problem 3
 
+Tidied dataset:
 ```{r}
-#accel_data=
-  #read_csv("./p8105_hw3_ng2696_files/accel_data.csv") %>%
-  #janitor::clean_names() %>%
-  #distinct() 
-  #mutate(day="Friday")
-
-#accel_data
+accel_data=
+  read_csv("./p8105_hw3_ng2696_files/accel_data.csv") %>%
+  janitor::clean_names() %>%
+  distinct() %>%
+  pivot_longer(activity_1:activity_1440,
+               names_to="minute",
+               names_prefix="activity_",
+               values_to="activity_count")%>%
+  mutate(minute=as.integer(minute))
+  #mutate(day_type=ifelse(,"weekday","weekend")) %>%
 ```
 
+Total activity across days:
+```{r}
+
+  accel_data %>%
+  group_by(day_id,day) %>%
+  summarize(daily_count=sum(activity_count)) %>%
+  knitr::kable()
+
+```
+Plot of activity count for each day:
+```{r}
+accel_data %>%
+  ggplot(aes(x=minute,y=activity_count,color=day))+geom_point()
+```
 
